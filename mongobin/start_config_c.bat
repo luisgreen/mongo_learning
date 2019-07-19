@@ -1,0 +1,1 @@
+.\bin\mongod.exe -f .\configs\config_c.cfg --oplogSize 50 

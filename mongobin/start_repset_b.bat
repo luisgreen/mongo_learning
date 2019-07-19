@@ -1,0 +1,1 @@
+.\bin\mongod.exe -f .\configs\node_b.cfg --oplogSize 50 
