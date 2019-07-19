@@ -111,7 +111,7 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
 
 - Manipulate Data and Perform Admininstrative Taks
 
-Inside Mongo Shell you can open connections with the following methods: 
+Inside Mongo Shell you can open connections with the following methods:
 
 ```js
 new Mongo()
@@ -138,7 +138,7 @@ db.auth()
 
 The 12-byte ObjectId value consists of:
 
-- a 4-byte value representing the seconds since the Unix epoch, 
+- a 4-byte value representing the seconds since the Unix epoch,
 - a 5-byte random value, and
 - a 3-byte counter, starting with a random value.
 
@@ -236,7 +236,7 @@ typeof mydoc._id
     - Scanned Keys and docs.
     - Plans executions.
 
-#### allPlansExecution 
+#### allPlansExecution
 
 - Shows partial execution statistics collected during plan selection.
 
@@ -265,7 +265,7 @@ db.collection.insertMany([{...}, {...}, {...}])
 db.inventory.find( {} )
 ```
 
-Query one array exactly 
+Query one array exactly
 
 ```js
 db.inventory.find( { tags: ["red", "blank"] } )
@@ -513,7 +513,7 @@ db.stores.find(
 ).sort( { score: { $meta: "textScore" } } )
 ```
 
- 
+
 #### Text Search in aggregations
 
 - The `$match` stage that includes a `$text` must be the first stage in the pipeline.
@@ -530,11 +530,11 @@ db.stores.find(
 
 #### Sharding Consideration
 
-- Pre split if collection is empty, to avoid additional overhead when loading initial data 
+- Pre split if collection is empty, to avoid additional overhead when loading initial data
 - Use Unordered bulks to allow `mongos` communicate with simultaneous shards at the same time.
 - On monotonically increasing shard key:
     - Reverse the binary bits of the shard key. This preserves the information and avoids correlating insertion order with increasing sequence of values.
-    - Swap the first and last 16-bit words to “shuffle” the inserts. 
+    - Swap the first and last 16-bit words to “shuffle” the inserts.
 
 ```js
 try {
@@ -633,7 +633,7 @@ db.orders.mapReduce(
     function(key, values) { return Array.sum(values); }, // REDUCE
     {
         query: { status: 'A' }, // FILTER
-        out: "order_totals"     // OUTPUT COLLECTION 
+        out: "order_totals"     // OUTPUT COLLECTION
     }
 
 );
@@ -672,7 +672,7 @@ A special 12-byte BSON type that guarantees uniqueness within the collection. Th
 - Challenge in data modeling is balancing the needs of the application, the performance characteristics of the database engine, and the data retrieval patterns.
 - Each index take at least 8Kb
 - Each collection take few Kb
-- A single namespacefile `database_name.ns` stores all database metadata. Each index or collection have its own entry. 
+- A single namespacefile `database_name.ns` stores all database metadata. Each index or collection have its own entry.
 - Namespace files are 16 MB by default.
 - For MMAP1 can be 24,000 namespaces in total (16MB each), (size / 628), and the size can be configured with `nsSize` option. and cannot be larger than 2047Mb.
 - After changing namespace size with `--nssize`, run the `db.repairDatabase()`.
@@ -703,7 +703,7 @@ db.people.insert({
 })
 ```
 
-#### Via DBRef 
+#### Via DBRef
 
 This allows to make references to another databases / collections
 
@@ -801,9 +801,9 @@ db.createCollection( "contacts",
 
 - Only on WiredTiger.
 - Read Concern level precedence:
-    - Transaction level (if set) -> Session level (if set) -> Client level (defaults `local`). 
+    - Transaction level (if set) -> Session level (if set) -> Client level (defaults `local`).
 - Write Concern level precedence:
-    - Transaction level (if set) -> Session level (if set) -> Client level (defaults { 'w':1 }). 
+    - Transaction level (if set) -> Session level (if set) -> Client level (defaults { 'w':1 }).
 - Supports `local`, `majority`, `snapshot` read concerns.
 - Supports multidocument transactions against replica-sets, (sharded clusters scheduled for Mongo 4.2)
 - Can be across multiple operations, databases, collections and documents.
@@ -904,9 +904,9 @@ db.place.find({
 - Index types:
     - **Single Field**: Like it sounds, single field of a document.
     - **Compound Index**: More than one field of a document.
-    - **Multikey Index**: Index over tehe content of an array. Mongo will create an index entry for each element.  
+    - **Multikey Index**: Index over tehe content of an array. Mongo will create an index entry for each element. 
     - **Geospatial Index**
-    - **Text Index**: This do not store `stop words` and `stem` the words in a collection to store root words. 
+    - **Text Index**: This do not store `stop words` and `stem` the words in a collection to store root words.
     - **Hashed Index**: This supports only `equality` match, not range. Have more random distribution.
 - Index Properties:
     - **Unique**
@@ -956,7 +956,7 @@ When an index can satisfy a part of the query, and another index can satisfy ano
 ### Hashed Index
 
 - Support Sharding.
-- `convertShardKeyToHashed()` can convert a key to hashed. 
+- `convertShardKeyToHashed()` can convert a key to hashed.
 - Can collapse a single embedded document and generate a hash.
 - Dont suport multikey indexes.
 
@@ -968,7 +968,7 @@ Create index that auto-evict documents, checking a `date` or a `[date]` field.
 - If created in background, Mongo can remove documents while creating the index.
 - If created in foreground, Mongo will remove documents as soon it finish to create the index.
 - Deletion task run every 60 seconds.
-- Deletion depends on the load of the server. 
+- Deletion depends on the load of the server.
 - Replica set delete documents only on primary, secondaries have this job idle.
 - Cannot be applied to `Capped Collections`.
 - You have to use the `collMod` command to modify the `expireAfterSeconds` or recreate the index.
@@ -1037,7 +1037,7 @@ db.people.createIndex( { zipcode: 1 }, { background: true } )
     - On `background` no lock will be taken.
     - Secondaries will be replicated afted primary finish.
 - Interrupt a index creation is possible via `db.killOp()` but cannot be immediate and may occur after index completion.
-    - When the index has begun the replication on secondaries it cannot be interrupted. 
+    - When the index has begun the replication on secondaries it cannot be interrupted.
 - `rolling` Index build:
     - Stop each secondary, Start `standalone` ouside the replica set on another port, create the index, start it again inside the replica set.
     - `rs.stepDown()` the primary, once elections took place, stop the stepped down node, Start `standalone` ouside the replica set on another port, create the index, start it again inside the replica set.
@@ -1070,12 +1070,12 @@ db.orders.find( { item: "abc123", qty: { $gt: 15 } } )
 - Multikey index cannot cover queries over array fields.
 - Creating an index in `foreground` on a populated collection `will block` the database containing the collection.
 - If database needs to be available consider using `background` index creation. The shell / connetion where this background operation is issued will be blocked until it finish.
-- To get index statistics you can use: `db.orders.aggregate( [ { $indexStats: { } } ] )` 
+- To get index statistics you can use: `db.orders.aggregate( [ { $indexStats: { } } ] )`
 - Using a find with `.hint( { $natural: 1 } )` prevents Mongo using `any` index.
 - Create Indexes to Support Your Queries
 - Use Indexes to Sort Query Results
 - Ensure Indexes Fit in RAM
-- Create Queries that Ensure Selectivity 
+- Create Queries that Ensure Selectivity
 
 #### Important Metrics
 
@@ -1144,7 +1144,7 @@ You can remove single indexes that contains prefixes of another more complex ind
     - A single Certificate Authority (CA) must issue all the x.509 certificates.
     - The Organization attributes (O’s), the Organizational Unit attributes (OU’s), and the Domain Components (DC’s) must match those from the certificates for the other cluster members.
     - Each member of the cluster must have `--clusterAuthMode` and `--sslClusterFile` parameters.
-    
+   
 
 ```js
 db.getSiblingDB("$external").auth({ mechanism: "MONGODB-X509" })
@@ -1161,7 +1161,7 @@ db.getSiblingDB("$external").auth({ mechanism: "MONGODB-X509" })
 
 Example of valid Certificates Attributes.
 
-```js 
+```js
 CN=host1,OU=Dept1,O=MongoDB,ST=NY,C=US
 C=US, ST=CA, O=MongoDB, OU=Dept1, CN=host2
 ```
@@ -1188,7 +1188,7 @@ openssl rand -base64 60 >> keyfile
 - For running replica sets:
     - Restart each secondary one by one with `--transitionToAuth` to allow both authenticated and non-authenticated connections while implementing auth on an existens replica set.
     - Step down primary, `rs.stepDown()` and restart with `--transitionToAuth`
-    - Restart each secondary one by one **WITHOUT** `--transitionToAuth` 
+    - Restart each secondary one by one **WITHOUT** `--transitionToAuth`
     - Step down the actual primary, `rs.stepDown()` and restart **WITHOUT** `--transitionToAuth`
 - For running Sharded
     - Restart each `mongos` one by one with with `--keyFile` and `--transitionToAuth`
@@ -1215,15 +1215,15 @@ $ mongo --ssl --sslPEMKeyFile <path to CA signed client PEM file> --sslCAFile <p
 
 - Mongo should be initialized with `--auth` flag to use Role Based Access Control.
 - Roles grant privileges to `actions` on `resources`. Either explicit specified or inherited.
-- Roles can inherit all privileges specified by another role. 
+- Roles can inherit all privileges specified by another role.
 
 ```
-db.grantPrivilegesToRole(rolename, privileges, writeConcern) 
-db.grantRolesToRole(rolename, roles, writeConcern) 
+db.grantPrivilegesToRole(rolename, privileges, writeConcern)
+db.grantRolesToRole(rolename, roles, writeConcern)
 db.grantRolesToUser(username, roles, writeConcern)
 
-db.revokePrivilegesFromRole(rolename, privileges, writeConcern) 
-db.revokeRolesFromRole(rolename, roles, writeConcern) 
+db.revokePrivilegesFromRole(rolename, privileges, writeConcern)
+db.revokeRolesFromRole(rolename, roles, writeConcern)
 db.revokeRolesFromUser(username, roles, writeConcern)
 ```
 
@@ -1273,7 +1273,7 @@ The following roles are not superuser roles directly but are able to assign any 
 
 ### Configuring Basic authentication
 
-To initialize authentication you must add `--auth` to mongod and `mongos` 
+To initialize authentication you must add `--auth` to mongod and `mongos`
 
 ```sh
 ./bin/mongod.exe --dbpath ./dataAuth/ --auth
@@ -1316,7 +1316,7 @@ Re-login
 mongo localhost/admin -u lchacon -p 123456789
 ```
 
-#### Change user password 
+#### Change user password
 
 ```js
 $ mongo --port 27017 -u myUserAdmin -p 'abc123' --authenticationDatabase 'admin'
@@ -1330,7 +1330,7 @@ db.changeUserPassword("reporting", "SOh3TbYhxuLiW8ypJPxmt1oOfL")
 
 - Mongo accept TLS/SSL cyphers with a 128bit **minimum** key length for all connections.
 - You must have PEM files.
-- Can use any valid TLS/SSL certificates. Self-signed or CA signed. 
+- Can use any valid TLS/SSL certificates. Self-signed or CA signed.
 
 
 ## REPLICATION
@@ -1349,12 +1349,12 @@ You can use the commands `replSetResizeOplog` and `oplogSizeMB` to see and chang
 ### Comapct oplog for recovering space
 
 - The replica set member cannot replicate oplog entries while the compact operation is ongoing.
-- Do not run compact against the primary replica set member. 
+- Do not run compact against the primary replica set member.
 
 ```js
 use local
 db.runCommand({ "compact" : "oplog.rs" } )
-``` 
+```
 
 
 ### Index creation
@@ -1424,7 +1424,7 @@ db.collection.ensureIndex({
 });
 ```
 
-### Geospatial 
+### Geospatial
 
 This are always sparce by default, given the followind doc:
 
@@ -1524,7 +1524,7 @@ Initialize the repset
 - Specify config
 - Initial data
 - Dont use ip-addresses
-- Dont use /etc/hosts 
+- Dont use /etc/hosts
 - Use DNS and an appropiate TTL
 
 Connect to the first node and run to make a 1 PRIM 2 SEC Repset:
@@ -1576,9 +1576,9 @@ cfg = {
 rs.initiate(cfg)
 ```
 
-### Reconfiguring the replica set 
+### Reconfiguring the replica set
 
-To check the actual configuration: 
+To check the actual configuration:
 
 ```js
 rs.conf()
@@ -1588,7 +1588,7 @@ cfg.members[2].priority = 0
 rs.reconfig(cfg)
 ```
 
- 
+
 
 ### Cluster wide commits
 
@@ -1645,7 +1645,7 @@ rs.initiate(cfg)
 
 Initialize the shard replicas connecting to one of the servers on shard replica set, and do:
 
-Initialize `AuxisRepSetShard1` 
+Initialize `AuxisRepSetShard1`
 
 ```js
 cfg = {
@@ -1671,7 +1671,7 @@ cfg = {
 rs.initiate(cfg)
 ```
 
-Initialize `AuxisRepSetShard2` 
+Initialize `AuxisRepSetShard2`
 
 ```js
 cfg = {
@@ -1697,7 +1697,7 @@ cfg = {
 rs.initiate(cfg)
 ```
 
-Initialize `AuxisRepSetShard3` 
+Initialize `AuxisRepSetShard3`
 
 ```js
 cfg = {
@@ -1723,7 +1723,7 @@ cfg = {
 rs.initiate(cfg)
 ```
 
-Initialize `AuxisRepSetShard4` 
+Initialize `AuxisRepSetShard4`
 
 ```js
 cfg = {
@@ -1879,19 +1879,19 @@ mongodump
 mongorestore
 ```
 
- 
+
 
 ### For sharded cluster
 
 - Turn off the balancer
-    - `sh.stopBalancer()` 
+    - `sh.stopBalancer()`
 
 ```sh
 mongo --host some_mongos --eval "sh.stopBalancer()"
 ```
 
 - Backup configdb
-    - `mongodump --db config` 
+    - `mongodump --db config`
 
 ```sh
 mongodump --host some_mongos_or_config_server --db config /backup/configdb
@@ -1906,7 +1906,7 @@ mongodump --host shard3_srv1 --oplog /backup/shard3
 ```
 
 - Turn on the balancer
-    - `sh.startBalancer()` 
+    - `sh.startBalancer()`
 
 ```sh
 mongo --host some_mongos --eval "sh.startBalancer()"
@@ -1920,14 +1920,14 @@ mongodump --oplog
 mongorestore --oplogReplay
 ```
 
- 
 
-## MongoDB Debug 
+
+## MongoDB Debug
 
 - mongostats
 - mongotop
 - mongoreplay
-- mogo 
+- mogo
 
 querys oplgogs
 wiredtiger engine
