@@ -17,7 +17,6 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
     - [Distributed Queries](#Distributed-Queries)
       - [Writes on Replica Sets](#Writes-on-Replica-Sets)
       - [Reads on Sharded Clusters](#Reads-on-Sharded-Clusters)
-      - [Reads on Sharded Clusters](#Reads-on-Sharded-Clusters-1)
     - [Explain results](#Explain-results)
       - [queryPlanner](#queryPlanner)
       - [executionStats](#executionStats)
@@ -31,7 +30,7 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
     - [Partial update](#Partial-update)
       - [Operators](#Operators)
     - [Delete](#Delete)
-      - [Options](#Options-1)
+      - [Options Object](#Options-Object)
       - [remove() Options](#remove-Options)
     - [Read Concern](#Read-Concern)
     - [Write Concern](#Write-Concern)
@@ -55,14 +54,13 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
   - [Query Samples](#Query-Samples)
   - [INDEXES](#INDEXES)
     - [Covered queries](#Covered-queries)
-    - [Index Intersection](#Index-Intersection)
     - [Text Index](#Text-Index)
     - [Hashed Index](#Hashed-Index)
     - [TTL Index](#TTL-Index)
     - [Unique index](#Unique-index)
     - [Partial Index](#Partial-Index)
     - [Insensitive Case Index](#Insensitive-Case-Index)
-    - [Index Intersection](#Index-Intersection-1)
+    - [Index Intersection](#Index-Intersection)
     - [Notes & limitations](#Notes--limitations)
       - [Important Metrics](#Important-Metrics)
     - [Prefixes](#Prefixes)
@@ -99,6 +97,19 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
     - [Initialize shard replicas](#Initialize-shard-replicas)
     - [Add Shards to mongos](#Add-Shards-to-mongos)
     - [Sharding a collection](#Sharding-a-collection)
+    - [Hashed Sharding](#Hashed-Sharding)
+    - [Ranged Sharding](#Ranged-Sharding)
+    - [Zoned Sharding](#Zoned-Sharding)
+      - [By Location](#By-Location)
+      - [By SLA](#By-SLA)
+      - [By Hard Criteria](#By-Hard-Criteria)
+    - [Sharding Administration](#Sharding-Administration)
+      - [Replace a Config server](#Replace-a-Config-server)
+    - [View databases with sharding Enabled](#View-databases-with-sharding-Enabled)
+    - [List Shards](#List-Shards)
+    - [View Cluster Details](#View-Cluster-Details)
+    - [Migrate config servers to new machines / hardware](#Migrate-config-servers-to-new-machines--hardware)
+    - [Remove a shard from the cluster](#Remove-a-shard-from-the-cluster)
   - [db.serverStatus( )](#dbserverStatus)
   - [Backup](#Backup)
     - [Methods](#Methods)
@@ -215,9 +226,6 @@ typeof mydoc._id
 - Are directed to a `mongos`
 - Are mor efficient if directed to a single shard. To achieve this you can query by the shard key.
 - If query does not includes tha shard key, mongos will direct query to all shards and then merge with `scatter gather` merge.
-
-#### Reads on Sharded Clusters
-
 - `mongos` will redirect writes to the corresponding shard, according to config server database.
 
 ### Explain results
@@ -392,7 +400,7 @@ db.collection.deleteOne(filter, options)
 db.collection.remove(query, removeOptions)
 ```
 
-#### Options
+#### Options Object
 
 ```js
 {
@@ -932,10 +940,6 @@ db.events.find().sort( { username: 1, date: 1 } )
 ### Covered queries
 
 Is a query where, the `query` portion and the `projection` portion ***ONLY*** contains the indexed fields.
-
-### Index Intersection
-
-When an index can satisfy a part of the query, and another index can satisfy another part of the query.
 
 ### Text Index
 
@@ -1835,6 +1839,276 @@ sh.shardCollection("test.prueba", {
         }
     }
     ...
+```
+
+### Hashed Sharding
+
+Initialize a sharded cluster as mentioned before. That includes config servers, shards, and replica sets.
+
+```js
+sh.enableSharding("<database>")
+sh.shardCollection("<database>.<collection>", { <shard key> : "hashed" } )
+```
+
+### Ranged Sharding
+
+Initialize a sharded cluster as mentioned before. That includes config servers, shards, and replica sets.
+
+```js
+sh.enableSharding("<database>")
+sh.shardCollection("<database>.<collection>", { <shard key> : <direction> } )
+```
+
+### Zoned Sharding
+
+#### By Location
+
+```js
+sh.disableBalancing("chat.message")
+
+sh.addShardTag("shard name", "NA")
+sh.addShardTag("shard name", "EU")
+
+sh.addTagRange(
+  "chat.messages",
+  { "country" : "US", "userid" : MinKey },
+  { "country" : "US", "userid" : MaxKey },
+  "NA"
+)
+
+sh.addTagRange(
+  "chat.messages",
+  { "country" : "UK", "userid" : MinKey },
+  { "country" : "UK", "userid" : MaxKey },
+  "EU"
+)
+
+sh.enableBalancing("chat.message")
+```
+
+#### By SLA
+
+This consider you have a high end Hardware and Low end one, recent data should to powerful hardware.
+
+Shard Key: `{ creation_date : 1 }`
+
+```js
+sh.disableBalancing("photoshare.data")
+
+sh.addShardTag("shard0000", "recent")
+sh.addShardTag("shard0001", "recent")
+sh.addShardTag("shard0002", "archive")
+
+sh.addTagRange(
+  "photoshare.data",
+  { "creation_date" : ISODate("2016-01-01") },
+  { "creation_date" : MaxKey },
+  "recent"
+)
+
+sh.addTagRange(
+  "photoshare.data",
+  { "creation_date" : MinKey },
+  { "creation_date" : ISODate("2016-01-01") },
+  "archive"
+)
+
+sh.enableBalancing("photoshare.data")
+
+sh.status()
+```
+
+If you need to redefine the date that is considered recent or archive, lets say, from `2016-01-01` to `2016-06-01`
+
+Shard Key: `{ creation_date : 1 }`
+
+```js
+sh.disableBalancing("photoshare.data")
+
+sh.removeTagRange(
+  "photoshare.data",
+  { "creation_date" : ISODate("2016-01-01") },
+  { "creation_date" : MaxKey },
+  "recent"
+)
+
+sh.removeTagRange(
+  "photoshare.data",
+  { "creation_date" : MinKey },
+  { "creation_date" : ISODate("2016-01-01") },
+  "archive"
+)
+
+sh.addTagRange(
+  "photoshare.data",
+  { "creation_date" : ISODate("2016-06-01") },
+  { "creation_date" : MaxKey },
+  "recent"
+)
+
+sh.addTagRange(
+  "photoshare.data",
+  { "creation_date" : MinKey },
+  { "creation_date" : ISODate("2016-06-01") },
+  "archive"
+)
+
+sh.enableBalancing("photoshare.data")
+
+sh.isBalancerRunning()
+sh.status()
+```
+
+#### By Hard Criteria
+
+This consider you have a high end Hardware and Low end one, recent data should to powerful hardware.
+
+Shard key: **{ client : 1, userid : 1 }**
+
+```js
+sh.disableBalancing("gamify.users")
+
+sh.addShardTag("shard0000", "robot")
+sh.addShardTag("shard0001", "robot")
+sh.addShardTag("shard0002", "fruitos")
+
+sh.addTagRange(
+  "gamify.users",
+  { "client" : "robot", "userid" : MinKey },
+  { "client" : "robot", "userid" : MaxKey },
+  "robot"
+)
+
+sh.addTagRange(
+  "gamify.users",
+  { "client" : "fruitos", "userid" : MinKey },
+  { "client" : "fruitos", "userid" : MaxKey },
+  "robot"
+)
+
+sh.enableBalancing("photoshare.data")
+
+sh.status()
+```
+
+
+### Sharding Administration
+
+#### Replace a Config server
+
+Start the config server
+
+```sh
+mongod --configsvr --replSet <replicaSetName> --bind_ip localhost,<hostname(s)|ip address(es)>
+```
+
+Add it to the replica set as no voter, no elegible for primary to allow consistency
+
+```js
+rs.add( { host: "<hostnameNew>:<portNew>", priority: 0, votes: 0 } )
+```
+
+When new member has achieved `SECONDARY` state, reconfig as normal and remove old node
+
+```js
+var cfg = rs.conf();
+
+cfg.members[n].priority = 1;  // Substitute the correct array index for the new member
+cfg.members[n].votes = 1;     // Substitute the correct array index for the new member
+
+rs.reconfig(cfg)
+
+rs.remove("<hostnameOld>:<portOld>")
+```
+
+### View databases with sharding Enabled
+
+```js
+use config
+db.databases.find( { "partitioned": true } )
+```
+
+### List Shards
+
+```js
+db.adminCommand( { listShards : 1 } )
+```
+
+### View Cluster Details
+
+Both are the same
+
+```js
+db.printShardingStatus()
+sh.status()
+```
+
+- *sharding version* displays the version number of the shard metadata.
+- *shards* displays a list of the mongod instances used as shards in the cluster.
+- *databases* displays all databases in the cluster, including database that do not have sharding enabled.
+- The *chunks* information for the foo database displays how many chunks are on each shard and displays the range of each chunk.
+
+### Migrate config servers to new machines / hardware
+
+Start the replacement config server
+
+```js
+sh.stopBalancer()
+rs.add( { host: "<hostnameNew>:<portNew>", priority: 0, votes: 0 } )
+
+// Wait for state SECONDARY
+
+rs.status()
+
+// Replace the node
+var cfg = rs.conf();
+
+cfg.members[n].priority = 1;  // Substitute the correct array index for the new member
+cfg.members[n].votes = 1;     // Substitute the correct array index for the new member
+
+rs.reconfig(cfg)
+
+// If replacing the primary force elections.
+rs.stepDown() // ON PRIMARY
+
+// Shutdown and remove the old node
+rs.remove("<hostnameOld>:<portOld>")
+
+sh.setBalancerState(true)
+```
+
+### Remove a shard from the cluster
+
+List the shards presents to determie the shard to be removed, then issue admin command to remove the shard.
+
+Remotion and Primary moving uses `majority` write concern
+
+```js
+db.adminCommand( { listShards: 1 } )
+db.adminCommand( { removeShard: "mongodb0" } )
+{
+   "msg" : "draining started successfully",
+   "state" : "started",
+   "shard" : "mongodb0",
+   "note" : "you need to drop or movePrimary these databases",
+   "dbsToMove" : [
+      "fiz",
+      "buzz"
+   ],
+   "ok" : 1,
+   "$clusterTime" : {
+      "clusterTime" : Timestamp(1510716515, 1),
+      "signature" : {
+         "hash" : BinData(0,"B2ViX7XLzFLS5Fl9XEuFXbwKIM4="),
+         "keyId" : NumberLong("6488045157173166092")
+      }
+   },
+   "operationTime" : Timestamp(1510716515, 1)
+}
+
+// If the primary shard is also the shard to be deleted
+// Move the sharded database to a new shard
+db.adminCommand( { movePrimary: "fizz", to: "mongodb1" })
 ```
 
 ## db.serverStatus( )
