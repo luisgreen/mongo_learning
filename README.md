@@ -191,20 +191,20 @@ typeof mydoc._id
 - Multi-document operations are atomic for each modified document but not as a whole.
 - Multi-document transactions are atomic as a whole.
 - Concurrency control
-    - Creating `unique` single or composite indexes that prevents duplicated data.
+  - Creating `unique` single or composite indexes that prevents duplicated data.
 - Read Uncommitted
-    - Clients with `local` or `available` read concern, can grab info that can even be rolled back.
-    - This does not means that a client will read partially updated documents.
-    - Default isolation level for all `mongod`, standalone, replica and sharded.
+  - Clients with `local` or `available` read concern, can grab info that can even be rolled back.
+  - This does not means that a client will read partially updated documents.
+  - Default isolation level for all `mongod`, standalone, replica and sharded.
 
 ### Distributed Queries
 
 - By default reads are done to primary if not read preference is specified.
 - Reads to secontary or nearest are useful for:
-    - Reduce latency in multi-data-center deployments,
-    - Improve read throughput by distributing high read-volumes (relative to write volume),
-    - Perform backup operations, and/or
-    - Allow reads until a new primary is elected.
+  - Reduce latency in multi-data-center deployments,
+  - Improve read throughput by distributing high read-volumes (relative to write volume),
+  - Perform backup operations, and/or
+  - Allow reads until a new primary is elected.
 
 #### Writes on Replica Sets
 
@@ -225,16 +225,16 @@ typeof mydoc._id
 #### queryPlanner
 
 - Default explain execution, and shows:
-    - Winning Plan.
-    - Shards and its servers involved.
+  - Winning Plan.
+  - Shards and its servers involved.
 
 #### executionStats
 
 - Details the execution of the winning plan and shows:
-    - Stages and shards involved.
-    - Returned docs.
-    - Scanned Keys and docs.
-    - Plans executions.
+  - Stages and shards involved.
+  - Returned docs.
+  - Scanned Keys and docs.
+  - Plans executions.
 
 #### allPlansExecution
 
@@ -255,7 +255,7 @@ db.collection.insertOne({...})
 db.collection.insertMany([{...}, {...}, {...}])
 ```
 
----
+-----
 
 ### Query
 
@@ -311,10 +311,9 @@ db.inventory.find( { "instock.qty": 5, "instock.warehouse": "A" } )
 - Sort operations without an index will load all documents into memory for sorting.
 - `myCursor.objsLeftInBatch()` will grab how much object remains on the Cursor Batch
 
-
 -----
 
-###  Update
+### Update
 
 Standard methods:
 
@@ -334,7 +333,6 @@ db.collection.findAndModify()
 db.collection.save()
 db.collection.bulkWrite()
 ```
-
 
 #### Options
 
@@ -384,7 +382,7 @@ db.collection.update({
 
 See: https://docs.mongodb.com/manual/reference/operator/update/
 
----
+-----
 
 ### Delete
 
@@ -395,6 +393,7 @@ db.collection.remove(query, removeOptions)
 ```
 
 #### Options
+
 ```js
 {
     writeConcern: document,
@@ -411,7 +410,8 @@ db.collection.remove(query, removeOptions)
     collation: document
 }
 ```
----
+
+-----
 
 ### Read Concern
 
@@ -420,34 +420,34 @@ The readConcern option allows you to control the consistency and isolation prope
 Is set at transaction level and `not` over individual operations.
 
 - Read Concern `local`
-    - No majority warranty
-    - Default for reads to primary
-    - Associated with Casual Consistency Session
-    - On UNSHARDED, local and available behave equals
+  - No majority warranty
+  - Default for reads to primary
+  - Associated with Casual Consistency Session
+  - On UNSHARDED, local and available behave equals
 
 - Read Concern `available`
-    - No majority warranty
-    - Default for reads to secondary
-    - `NOT` Associated and `NOT AVAILABLE` with Casual Consistency Session
-    - On sharded cluster, may return orphaned documents, as does not contact primary shard or config server for metadata.
-    - On UNSHARDED, local and available behave equals
+  - No majority warranty
+  - Default for reads to secondary
+  - `NOT` Associated and `NOT AVAILABLE` with Casual Consistency Session
+  - On sharded cluster, may return orphaned documents, as does not contact primary shard or config server for metadata.
+  - On UNSHARDED, local and available behave equals
 
 - Read Concern `majority`
-    - If `multi-document transaction` only guarantees if data was written with `majority` write concern.
-    - Otherwise guarantees that the read data was acknowledged by the majority.
-    - Disabling "majority" read concern disables support for Change Streams.
+  - If `multi-document transaction` only guarantees if data was written with `majority` write concern.
+  - Otherwise guarantees that the read data was acknowledged by the majority.
+  - Disabling "majority" read concern disables support for Change Streams.
 
 - Read Concern `linearizable`
-    - Returns data that reflects all successful majority-acknowledged writes prior read.
-    - May wait for concurrently executing writes to propagate to a majority members.
+  - Returns data that reflects all successful majority-acknowledged writes prior read.
+  - May wait for concurrently executing writes to propagate to a majority members.
 
 - Read Concern `snapshot`
-    - `multi-document transaction` only.
-    - When transactions commit with write concern `majority`:
-        - If causally consistent session, the transaction are guaranteed to have read from a snapshot of majority-committed data.
-        - If `NOT` causally consistent session, the transaction are guaranteed to have read from a snapshot of majority-committed data that provides causal consistency with the operation immediately preceding the transaction start.
+  - `multi-document transaction` only.
+  - When transactions commit with write concern `majority`:
+    - If causally consistent session, the transaction are guaranteed to have read from a snapshot of majority-committed data.
+    - If `NOT` causally consistent session, the transaction are guaranteed to have read from a snapshot of majority-committed data that provides causal consistency with the operation immediately preceding the transaction start.
 
----
+-----
 
 ### Write Concern
 
@@ -473,14 +473,13 @@ cfg.settings.getLastErrorDefaults = { w: "majority", wtimeout: 5000 }
 rs.reconfig(cfg)
 ```
 
-
 #### Behavior
 
 **SEE IMPORTANT!**
 
 https://docs.mongodb.com/manual/reference/write-concern/#acknowledgment-behavior
 
----
+-----
 
 ### Text Search
 
@@ -513,7 +512,6 @@ db.stores.find(
 ).sort( { score: { $meta: "textScore" } } )
 ```
 
-
 #### Text Search in aggregations
 
 - The `$match` stage that includes a `$text` must be the first stage in the pipeline.
@@ -521,8 +519,8 @@ db.stores.find(
 - The text operator expression cannot appear in `$or` or `$not` expressions.
 - The text search, by default, does not return the matching documents in order of matching scores. Use the `$meta` aggregation expression in the `$sort` stage.
 
+-----
 
----
 ### Bulk Writes Operations
 
 - Ordered: Serial, stops if error encountered
@@ -533,8 +531,8 @@ db.stores.find(
 - Pre split if collection is empty, to avoid additional overhead when loading initial data
 - Use Unordered bulks to allow `mongos` communicate with simultaneous shards at the same time.
 - On monotonically increasing shard key:
-    - Reverse the binary bits of the shard key. This preserves the information and avoids correlating insertion order with increasing sequence of values.
-    - Swap the first and last 16-bit words to “shuffle” the inserts.
+  - Reverse the binary bits of the shard key. This preserves the information and avoids correlating insertion order with increasing sequence of values.
+  - Swap the first and last 16-bit words to “shuffle” the inserts.
 
 ```js
 try {
@@ -579,7 +577,7 @@ catch (e) {
 }
 ```
 
----
+-----
 
 ### Retryable Writes
 
@@ -590,14 +588,14 @@ catch (e) {
 
 To enable retry writes, connect to the instances with a compatible driver
 
-```
+```js
 mongodb://localhost/?retryWrites=true
 ```
 
 Or mongo shell:
 
 ```sh
-$ mongo --retryWrites
+mongo --retryWrites
 ```
 
 ## AGGREGATION PIPELINES
@@ -614,14 +612,14 @@ Is a Framework for data aggregation modeled on the concept of data processing pi
 - `$match` and `$sort` can go anywhere but is recommended to put in the beggining of the pipeline for taking advantage of indexes.
 - Is preferred and more performant than `map-reduce` but less flexible.
 - On sharded Collections
-    - `$out` stage and the `$lookup` stage require running on the database’s primary shard.
-    - Aggregation operations that run on multiple shards,(not restricted to primary) will route the results to a random shard to merge the results to avoid overloading the primary shard for that database.
+  - `$out` stage and the `$lookup` stage require running on the database’s primary shard.
+  - Aggregation operations that run on multiple shards,(not restricted to primary) will route the results to a random shard to merge the results to avoid overloading the primary shard for that database.
 - Automatic optimizations
-    - `$match` will be moved before any stage that does not require computation like `$project` or `$addFields`.
-    - If multiple `$match` are found, will be optimized for each stage.
-    - If a `$match` and a `$sort` are present, `$sort` will be put at the end when possible.
-    - When you have a sequence with `$project` followed by `$skip`, the `$skip` moves before `$project`.
-    - When a `$sort` precedes a `$limit`, the optimizer can coalesce the `$limit` into the `$sort`
+  - `$match` will be moved before any stage that does not require computation like `$project` or `$addFields`.
+  - If multiple `$match` are found, will be optimized for each stage.
+  - If a `$match` and a `$sort` are present, `$sort` will be put at the end when possible.
+  - When you have a sequence with `$project` followed by `$skip`, the `$skip` moves before `$project`.
+  - When a `$sort` precedes a `$limit`, the optimizer can coalesce the `$limit` into the `$sort`
 
 ## MAP REDUCE
 
@@ -644,27 +642,28 @@ db.orders.mapReduce(
 - Input and Output collections can be sharded.
 - Less performant than `aggregation` but more flexible.
 - Map function
-    - Returns 0 or more documents.
-    - Should not access database.
-    - Should be pure.
-    - Single emit can hold half of max BSON Document Size (8 Mb)
-    - Can emit multiple times.
+  - Returns 0 or more documents.
+  - Should not access database.
+  - Should be pure.
+  - Single emit can hold half of max BSON Document Size (8 Mb)
+  - Can emit multiple times.
 - Reduce Function
-    - Should not access database.
-    - Should not affect the outside system.
-    - The `values` will be always an array.
-    - Must be idempotent, associative and commutative.
+  - Should not access database.
+  - Should not affect the outside system.
+  - The `values` will be always an array.
+  - Must be idempotent, associative and commutative.
 - Finalize Function
-    - Make last operations on the results after being reduced.
+  - Make last operations on the results after being reduced.
 - On Sharded Collections
-    - `mongos` will dispatch `map-reduce` jobs to each shard in parallel that owns a chunk and wait for finishing.
+  - `mongos` will dispatch `map-reduce` jobs to each shard in parallel that owns a chunk and wait for finishing.
 - During the operation, map-reduce takes the following locks:
-    - The read phase takes a read lock. It yields every 100 documents.
-    - The insert into the temporary collection takes a write lock for a single write.
-    - If the output collection does not exist, the creation of the output collection takes a write lock.
-    - If the output collection exists, then the output actions (i.e. merge, replace, reduce) take a write lock. This write lock is global, and blocks all operations on the mongod instance.
+  - The read phase takes a read lock. It yields every 100 documents.
+  - The insert into the temporary collection takes a write lock for a single write.
+  - If the output collection does not exist, the creation of the output collection takes a write lock.
+  - If the output collection exists, then the output actions (i.e. merge, replace, reduce) take a write lock. This write lock is global, and blocks all operations on the mongod instance.
 
 ## ObjectId
+
 A special 12-byte BSON type that guarantees uniqueness within the collection. The ObjectId is generated based on timestamp, machine ID, process ID, and a process-local incremental counter. MongoDB uses ObjectId values as the default values for _id fields.
 
 ## DATA MODELING
@@ -678,10 +677,10 @@ A special 12-byte BSON type that guarantees uniqueness within the collection. Th
 - After changing namespace size with `--nssize`, run the `db.repairDatabase()`.
 - Namespace files are not subject to such limitations for `wiredTiger`.
 - Data validation can be done via JSONShema model during collection creation.
-    - You can specify object type, required fields, data type, etc.
-    - Two types of validations:
-        - **strict** (default): Applies to all Insert/updates
-        - **moderate**: Applies to existing documents that already fulfill validations.
+  - You can specify object type, required fields, data type, etc.
+  - Two types of validations:
+    - **strict** (default): Applies to all Insert/updates
+    - **moderate**: Applies to existing documents that already fulfill validations.
 
 ### Database Refs
 
@@ -801,9 +800,9 @@ db.createCollection( "contacts",
 
 - Only on WiredTiger.
 - Read Concern level precedence:
-    - Transaction level (if set) -> Session level (if set) -> Client level (defaults `local`).
+  - Transaction level (if set) -> Session level (if set) -> Client level (defaults `local`).
 - Write Concern level precedence:
-    - Transaction level (if set) -> Session level (if set) -> Client level (defaults { 'w':1 }).
+  - Transaction level (if set) -> Session level (if set) -> Client level (defaults { 'w':1 }).
 - Supports `local`, `majority`, `snapshot` read concerns.
 - Supports multidocument transactions against replica-sets, (sharded clusters scheduled for Mongo 4.2)
 - Can be across multiple operations, databases, collections and documents.
@@ -828,7 +827,6 @@ db.createCollection( "contacts",
 
 - For count use a aggregation with a group and sum.
 - Cannot use `$collStats`, `$currentOp`, `$indexStats`, `$listLocalSessions`, `$listSessions`, `$out` on aggregations.
-
 
 ```js
 Session.startTransaction()
@@ -899,24 +897,24 @@ db.place.find({
 - `_id` index cannot be dropped.
 - Indexes can be traversed on either direction.
 - On sharded clusters.
-    - You must ensure de uniqueness of `_id` field (or use de automatic ObjectId)
+  - You must ensure de uniqueness of `_id` field (or use de automatic ObjectId)
 - You can create indexes on single fields, embedded documents, and embedded fields on those documents.
 - Index types:
-    - **Single Field**: Like it sounds, single field of a document.
-    - **Compound Index**: More than one field of a document.
-    - **Multikey Index**: Index over tehe content of an array. Mongo will create an index entry for each element. 
-    - **Geospatial Index**
-    - **Text Index**: This do not store `stop words` and `stem` the words in a collection to store root words.
-    - **Hashed Index**: This supports only `equality` match, not range. Have more random distribution.
+  - **Single Field**: Like it sounds, single field of a document.
+  - **Compound Index**: More than one field of a document.
+  - **Multikey Index**: Index over tehe content of an array. Mongo will create an index entry for each element.
+  - **Geospatial Index**
+  - **Text Index**: This do not store `stop words` and `stem` the words in a collection to store root words.
+  - **Hashed Index**: This supports only `equality` match, not range. Have more random distribution.
 - Index Properties:
-    - **Unique**
-    - **Partial**: Index only documents that meets a query selection.
-    - **Sparce**: Index only documents if the fields on the index definition are present.
-    - **TTL Index**: Index that automatically remove items.
+  - **Unique**
+  - **Partial**: Index only documents that meets a query selection.
+  - **Sparce**: Index only documents if the fields on the index definition are present.
+  - **TTL Index**: Index that automatically remove items.
 - Index and Collations:
-    - `text`, `geoHaystack`, `2d` indexes does not support collation.
-    - An index with a collation, can only be used if the query operation specify the same collation.
-    - If the index prefix is numeric, a index can still satisfy the prefix portion, and can be used even if the operation is not on the same collation.
+  - `text`, `geoHaystack`, `2d` indexes does not support collation.
+  - An index with a collation, can only be used if the query operation specify the same collation.
+  - If the index prefix is numeric, a index can still satisfy the prefix portion, and can be used even if the operation is not on the same collation.
 - Sort can be covered only on straight or negative, not combinations:
 
 ```js
@@ -1025,7 +1023,6 @@ db.fruit.createIndex( { type: 1},
                       { collation: { locale: 'en', strength: 2 } } )
 ```
 
-
 ```js
 db.people.createIndex( { zipcode: 1 }, { background: true } )
 ```
@@ -1033,14 +1030,14 @@ db.people.createIndex( { zipcode: 1 }, { background: true } )
 - Default limit on memory usage for a createIndexes operation is 500 megabytes
 - If a `background` index is interrupted by a `mongod` termination, it will resume as `foreground` when `mongod` brings up.
 - On **Replica Sets or Sharded Clusters**
-    - On `foreground` the replication worker will take a global DB lock on `all databases`.
-    - On `background` no lock will be taken.
-    - Secondaries will be replicated afted primary finish.
+  - On `foreground` the replication worker will take a global DB lock on `all databases`.
+  - On `background` no lock will be taken.
+  - Secondaries will be replicated afted primary finish.
 - Interrupt a index creation is possible via `db.killOp()` but cannot be immediate and may occur after index completion.
-    - When the index has begun the replication on secondaries it cannot be interrupted.
+  - When the index has begun the replication on secondaries it cannot be interrupted.
 - `rolling` Index build:
-    - Stop each secondary, Start `standalone` ouside the replica set on another port, create the index, start it again inside the replica set.
-    - `rs.stepDown()` the primary, once elections took place, stop the stepped down node, Start `standalone` ouside the replica set on another port, create the index, start it again inside the replica set.
+  - Stop each secondary, Start `standalone` ouside the replica set on another port, create the index, start it again inside the replica set.
+  - `rs.stepDown()` the primary, once elections took place, stop the stepped down node, Start `standalone` ouside the replica set on another port, create the index, start it again inside the replica set.
 
 ### Index Intersection
 
@@ -1058,7 +1055,6 @@ db.orders.find( { item: "abc123", qty: { $gt: 15 } } )
 ```
 
 - `explain()` will include either an `AND_SORTED` stage or an `AND_HASH` stage.
-
 
 ### Notes & limitations
 
@@ -1080,14 +1076,14 @@ db.orders.find( { item: "abc123", qty: { $gt: 15 } } )
 #### Important Metrics
 
 - serverStatus `db.runCommand({serverStatus: 1})`
-    - metrics.queryExecutor.scanned
-    - metrics.operation.scanAndOrder
+  - metrics.queryExecutor.scanned
+  - metrics.operation.scanAndOrder
 - collStats `db.runCommand({collStats: "bios"})`
-    - totalIndexSize
-    - indexSizes
+  - totalIndexSize
+  - indexSizes
 - dbStats `db.runCommand({"dbStats":1)`
-    - dbStats.indexes
-    - dbStats.indexSize
+  - dbStats.indexes
+  - dbStats.indexSize
 
 ### Prefixes
 
@@ -1095,14 +1091,14 @@ Index prefixes are the beginning subsets of indexed fields. Queries can use an i
 
 You can remove single indexes that contains prefixes of another more complex index.
 
----
+-----
 
 ## Security
 
 - Trusted environment
 - Mongodb authentication
-    - Auth (client access)
-    - Keyfile (intra cluster)
+  - Auth (client access)
+  - Keyfile (intra cluster)
 - Access Control
 - Encryption
 - Network Setup
@@ -1119,32 +1115,31 @@ You can remove single indexes that contains prefixes of another more complex ind
 - Use the mongo command-line authentication options (`--username`, `--password`, and `--authenticationDatabase`) when connecting to the mongod or mongos instance.
 - Connect first to the mongod or mongos instance, and then run the authenticate command or the db.auth() method against the authentication database.
 
----
+-----
 
 - Authorization
-    - Role-Based Access Control
-    - Enable Access Control
-    - Manage Users and Roles
+  - Role-Based Access Control
+  - Enable Access Control
+  - Manage Users and Roles
 - TLS/SSL
-    - TLS/SSL (Transport Encryption)
-    - Configure mongod and mongos for TLS/SSL
-    - TLS/SSL Configuration for Clients
+  - TLS/SSL (Transport Encryption)
+  - Configure mongod and mongos for TLS/SSL
+  - TLS/SSL Configuration for Clients
 - Enterprise Only
-    - Kerberos Authentication
-    - LDAP Proxy Authentication
-    - Encryption at Rest
-    - Auditing
+  - Kerberos Authentication
+  - LDAP Proxy Authentication
+  - Encryption at Rest
+  - Auditing
 
----
+-----
 
 **Authentication Methods**
 
 - SCRAM (default, username & password): Supports `SCRAM-SHA-1` & `SCRAM-SHA-256`
 - x.509: To authenticate using x.509 client certificate, include the `--ssl` and `--sslPEMKeyFile` parameters.
-    - A single Certificate Authority (CA) must issue all the x.509 certificates.
-    - The Organization attributes (O’s), the Organizational Unit attributes (OU’s), and the Domain Components (DC’s) must match those from the certificates for the other cluster members.
-    - Each member of the cluster must have `--clusterAuthMode` and `--sslClusterFile` parameters.
-   
+  - A single Certificate Authority (CA) must issue all the x.509 certificates.
+  - The Organization attributes (O’s), the Organizational Unit attributes (OU’s), and the Domain Components (DC’s) must match those from the certificates for the other cluster members.
+  - Each member of the cluster must have `--clusterAuthMode` and `--sslClusterFile` parameters.
 
 ```js
 db.getSiblingDB("$external").auth({ mechanism: "MONGODB-X509" })
@@ -1152,12 +1147,12 @@ db.getSiblingDB("$external").auth({ mechanism: "MONGODB-X509" })
 
 **SSL Modes**
 
-| SSL MODE |  DESCRIPTION |
-| -- | -- |
-| disabled      | The server does not use TLS/SSL. |
-| allowSSL      | Connections between servers do not use TLS/SSL. For incoming connections, the server accepts both TLS/SSL and non-TLS/non-SSL. |
-| preferSSL     | Connections between servers use TLS/SSL. For incoming connections, the server accepts both TLS/SSL and non-TLS/non-SSL. |
-| requireSSL    | The server uses and accepts only TLS/SSL encrypted connections. |
+| SSL MODE   | DESCRIPTION                                                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| disabled   | The server does not use TLS/SSL.                                                                                               |
+| allowSSL   | Connections between servers do not use TLS/SSL. For incoming connections, the server accepts both TLS/SSL and non-TLS/non-SSL. |
+| preferSSL  | Connections between servers use TLS/SSL. For incoming connections, the server accepts both TLS/SSL and non-TLS/non-SSL.        |
+| requireSSL | The server uses and accepts only TLS/SSL encrypted connections.                                                                |
 
 Example of valid Certificates Attributes.
 
@@ -1186,13 +1181,13 @@ openssl rand -base64 60 >> keyfile
 - Copy the keyfile to each replica set member.
 - Start all `mongod` instances with `--keyFile` paramenter.
 - For running replica sets:
-    - Restart each secondary one by one with `--transitionToAuth` to allow both authenticated and non-authenticated connections while implementing auth on an existens replica set.
-    - Step down primary, `rs.stepDown()` and restart with `--transitionToAuth`
-    - Restart each secondary one by one **WITHOUT** `--transitionToAuth`
-    - Step down the actual primary, `rs.stepDown()` and restart **WITHOUT** `--transitionToAuth`
+  - Restart each secondary one by one with `--transitionToAuth` to allow both authenticated and non-authenticated connections while implementing auth on an existens replica set.
+  - Step down primary, `rs.stepDown()` and restart with `--transitionToAuth`
+  - Restart each secondary one by one **WITHOUT** `--transitionToAuth`
+  - Step down the actual primary, `rs.stepDown()` and restart **WITHOUT** `--transitionToAuth`
 - For running Sharded
-    - Restart each `mongos` one by one with with `--keyFile` and `--transitionToAuth`
-    - Apply changes to each shard according to a replica set instructions.
+  - Restart each `mongos` one by one with with `--keyFile` and `--transitionToAuth`
+  - Apply changes to each shard according to a replica set instructions.
 
 #### Internal Authentication with x.509
 
@@ -1207,9 +1202,8 @@ $ mongod --replSet <name> --sslMode requireSSL --clusterAuthMode x509 \
 Authenticate with a x.509 certificate:
 
 ```sh
-$ mongo --ssl --sslPEMKeyFile <path to CA signed client PEM file> --sslCAFile <path to root CA PEM file>  --authenticationDatabase '$external' --authenticationMechanism MONGODB-X509
+mongo --ssl --sslPEMKeyFile <path to CA signed client PEM file> --sslCAFile <path to root CA PEM file>  --authenticationDatabase '$external' --authenticationMechanism MONGODB-X509
 ```
-
 
 ### Role based Access Control
 
@@ -1217,7 +1211,7 @@ $ mongo --ssl --sslPEMKeyFile <path to CA signed client PEM file> --sslCAFile <p
 - Roles grant privileges to `actions` on `resources`. Either explicit specified or inherited.
 - Roles can inherit all privileges specified by another role.
 
-```
+```js
 db.grantPrivilegesToRole(rolename, privileges, writeConcern)
 db.grantRolesToRole(rolename, roles, writeConcern)
 db.grantRolesToUser(username, roles, writeConcern)
@@ -1234,9 +1228,9 @@ The database administration roles we can use are the following:
 - dbAdmin – Grant privileges to perform administrative tasks
 - userAdmin – Allows you to create and modify users and roles on the current database
 - dbOwner – This role combines the following:
-    - readWrite
-    - dbAdmin
-    - userAdmin
+  - readWrite
+  - dbAdmin
+  - userAdmin
 
 #### Cluster Administration Roles
 
@@ -1324,14 +1318,13 @@ $ mongo --port 27017 -u myUserAdmin -p 'abc123' --authenticationDatabase 'admin'
 db.changeUserPassword("reporting", "SOh3TbYhxuLiW8ypJPxmt1oOfL")
 ```
 
-----
+-----
 
 ### TLS/SSL
 
 - Mongo accept TLS/SSL cyphers with a 128bit **minimum** key length for all connections.
 - You must have PEM files.
 - Can use any valid TLS/SSL certificates. Self-signed or CA signed.
-
 
 ## REPLICATION
 
@@ -1355,7 +1348,6 @@ You can use the commands `replSetResizeOplog` and `oplogSizeMB` to see and chang
 use local
 db.runCommand({ "compact" : "oplog.rs" } )
 ```
-
 
 ### Index creation
 
@@ -1490,11 +1482,8 @@ db.collection.dropIndex("MyIndex");
 ```
 
 > `order` : 1 ASC, -1 DESC
-
 > `geooption` : "2dsphere", "2d"
-
 > `boolean` : [true / false]
-
 
 ### Mongo statistics
 
@@ -1587,8 +1576,6 @@ cfg.members[2].slaveDelay = NumberLong(300)
 cfg.members[2].priority = 0
 rs.reconfig(cfg)
 ```
-
-
 
 ### Cluster wide commits
 
@@ -1865,9 +1852,9 @@ see: https://docs.mongodb.com/manual/reference/command/serverStatus/
 - mogodump / mongorestore
 - filesystem snapshot ( Journaling required )
 - backup from secondary
-    - shutdown
-    - copy files
-    - restart
+  - shutdown
+  - copy files
+  - restart
 
 ### For single servers
 
@@ -1879,19 +1866,17 @@ mongodump
 mongorestore
 ```
 
-
-
 ### For sharded cluster
 
 - Turn off the balancer
-    - `sh.stopBalancer()`
+  - `sh.stopBalancer()`
 
 ```sh
 mongo --host some_mongos --eval "sh.stopBalancer()"
 ```
 
 - Backup configdb
-    - `mongodump --db config`
+  - `mongodump --db config`
 
 ```sh
 mongodump --host some_mongos_or_config_server --db config /backup/configdb
@@ -1906,7 +1891,7 @@ mongodump --host shard3_srv1 --oplog /backup/shard3
 ```
 
 - Turn on the balancer
-    - `sh.startBalancer()`
+  - `sh.startBalancer()`
 
 ```sh
 mongo --host some_mongos --eval "sh.startBalancer()"
@@ -1919,8 +1904,6 @@ mongodump --oplog
 // Restore
 mongorestore --oplogReplay
 ```
-
-
 
 ## MongoDB Debug
 
