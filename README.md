@@ -93,6 +93,7 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
     - [Cluster wide commits](#Cluster-wide-commits)
     - [The `w` parameter](#The-w-parameter)
   - [Sharding](#Sharding)
+    - [Sharding restrictions](#Sharding-restrictions)
     - [Initialize Config Servers](#Initialize-Config-Servers)
     - [Initialize shard replicas](#Initialize-shard-replicas)
     - [Add Shards to mongos](#Add-Shards-to-mongos)
@@ -110,6 +111,8 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
     - [View Cluster Details](#View-Cluster-Details)
     - [Migrate config servers to new machines / hardware](#Migrate-config-servers-to-new-machines--hardware)
     - [Remove a shard from the cluster](#Remove-a-shard-from-the-cluster)
+    - [Find Jumbo chunks and clearing jumbo flag](#Find-Jumbo-chunks-and-clearing-jumbo-flag)
+    - [Backup Cluster Metadata](#Backup-Cluster-Metadata)
   - [db.serverStatus( )](#dbserverStatus)
   - [Backup](#Backup)
     - [Methods](#Methods)
@@ -1603,6 +1606,19 @@ db.runCommand({
 
 ## Sharding
 
+### Sharding restrictions
+
+- Cannod use `db.eval()`
+- `group` is not alowed. You must use `mapReduce` or `aggregate` instead.
+- `geoSearch` is not supported.
+- All `updateOne()`, `removeOne()`, and `deleteOne()` operations for a sharded collection that specify the `justOne` option, must have a shard key or `_id` field. If not will return an error.
+- Sharded collections cannot have unique indexes unless that index includes the full shard key as prefix.
+
+```txt
+maxSplits = 16777216 (bytes) / <average size of shard key values in bytes>
+maxCollectionSize (MB) = maxSplits * (chunkSize / 2)
+```
+
 ### Initialize Config Servers
 
 Initialize `AuxisRepSetCfg` , initialize the config servers replica set, connect to one of the config servers and do:
@@ -1749,6 +1765,7 @@ sh.addShard("AuxisRepSetShard1/localhost:27001");
 sh.addShard("AuxisRepSetShard2/localhost:27011");
 sh.addShard("AuxisRepSetShard3/localhost:27021");
 sh.addShard("AuxisRepSetShard4/localhost:27031");
+sh.addShard("AuxisRepSetShard5/mongodb3.example.net:27017,mongodb4.example.net:27017,mongodb5.example.net:27017")
 ```
 
 Check status:
@@ -2079,6 +2096,8 @@ sh.setBalancerState(true)
 
 ### Remove a shard from the cluster
 
+Ensure the balancer is enabled. As this will need to move the data over the cluster.
+
 List the shards presents to determie the shard to be removed, then issue admin command to remove the shard.
 
 Remotion and Primary moving uses `majority` write concern
@@ -2110,6 +2129,28 @@ db.adminCommand( { removeShard: "mongodb0" } )
 // Move the sharded database to a new shard
 db.adminCommand( { movePrimary: "fizz", to: "mongodb1" })
 ```
+
+### Find Jumbo chunks and clearing jumbo flag
+
+The preferred way to clear the jumbo flag is splitting a chunk.
+
+Use either `sh.splitAt()` or `sh.splitFind()` to split the jumbo chunk.
+
+```js
+// Find a Jumbo Chunk
+sh.status(true)
+
+// Split it
+sh.splitAt( "test.foo", { x: 3 })
+```
+
+### Backup Cluster Metadata
+
+- Disable the cluster balancer.
+- Shut down one of the config databases.
+- Create a full copy of the data files (i.e. the path specified by the dbPath option for the config instance.)
+- Restart the original configuration server.
+- Re-enable the balancer.
 
 ## db.serverStatus( )
 
