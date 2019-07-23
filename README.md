@@ -113,12 +113,12 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
     - [Remove a shard from the cluster](#Remove-a-shard-from-the-cluster)
     - [Find Jumbo chunks and clearing jumbo flag](#Find-Jumbo-chunks-and-clearing-jumbo-flag)
     - [Backup Cluster Metadata](#Backup-Cluster-Metadata)
+    - [Config Database](#Config-Database)
   - [db.serverStatus( )](#dbserverStatus)
   - [Backup](#Backup)
     - [Methods](#Methods)
     - [For single servers](#For-single-servers)
     - [For sharded cluster](#For-sharded-cluster)
-    - [Config Database](#Config-Database)
   - [MongoDB Debug](#MongoDB-Debug)
   - [PDF 2nd Edition](#PDF-2nd-Edition)
 
@@ -2153,6 +2153,24 @@ sh.splitAt( "test.foo", { x: 3 })
 - Restart the original configuration server.
 - Re-enable the balancer.
 
+### Config Database
+
+`config` database include the following collections:
+
+- changelog: stores a document for each change to the metadata of a sharded collection
+- chunks
+- collections
+- databases
+- lockpings: keeps track of the active components in the sharded cluster
+- locks: global locks
+- mongos: mongos instances affiliated with the cluster.
+- settings: Chunk size in MB, Balancer status, Autosplit.
+- shards
+- tags: zone ranging in the cluster
+- version: current metadata version number.
+- system.sessions
+- transactions
+
 ## db.serverStatus( )
 
 **IMPORTANT!**
@@ -2221,23 +2239,7 @@ mongodump --oplog
 mongorestore --oplogReplay
 ```
 
-### Config Database
 
-`config` database include the following collections:
-
-- changelog: stores a document for each change to the metadata of a sharded collection
-- chunks
-- collections
-- databases
-- lockpings: keeps track of the active components in the sharded cluster
-- locks: global locks
-- mongos: mongos instances affiliated with the cluster.
-- settings: Chunk size in MB, Balancer status, Autosplit.
-- shards
-- tags: zone ranging in the cluster
-- version: current metadata version number.
-- system.sessions
-- transactions
 
 ## MongoDB Debug
 
