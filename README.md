@@ -118,6 +118,7 @@ Jumbo Mongo 4.0 Notes taken from Mongo Manual
     - [Methods](#Methods)
     - [For single servers](#For-single-servers)
     - [For sharded cluster](#For-sharded-cluster)
+    - [Config Database](#Config-Database)
   - [MongoDB Debug](#MongoDB-Debug)
   - [PDF 2nd Edition](#PDF-2nd-Edition)
 
@@ -2219,6 +2220,24 @@ mongodump --oplog
 // Restore
 mongorestore --oplogReplay
 ```
+
+### Config Database
+
+`config` database include the following collections:
+
+- changelog: stores a document for each change to the metadata of a sharded collection
+- chunks
+- collections
+- databases
+- lockpings: keeps track of the active components in the sharded cluster
+- locks: global locks
+- mongos: mongos instances affiliated with the cluster.
+- settings: Chunk size in MB, Balancer status, Autosplit.
+- shards
+- tags: zone ranging in the cluster
+- version: current metadata version number.
+- system.sessions
+- transactions
 
 ## MongoDB Debug
 
