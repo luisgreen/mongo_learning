@@ -2180,6 +2180,20 @@ sh.splitAt( "test.foo", { x: 3 })
 - Use NTP to sync time between nodes.
 - Use `XFS` when possible.
 - sysctl vm.swappiness=1 is recommended see: `/proc/sys/vm/swappiness`
+- Turn off atime for the storage volume containing the database files.
+- File descriptor limit, -n, and the user process limit (ulimit), -u, above 20,000.
+- Disable Transparent Huge Pages.
+- Disable NUMA in your BIOS.
+- Configure SELinux for MongoDB if you are not using the default MongoDB directory paths or ports.
+- Set the readahead setting to 0
+- Disable the tuned tool on Centos
+- Profiler collection is 1MB size.
+- Journal is written each 50ms.
+- Journal File is 100MB in limit and create a new one each 100MB data.
+- GridFS Chunks are 255Kb
+  - Uses 2 collections `chunks` and `files` (this last stores metadata)
+- oplog.rs is approximately 5% of disk space
+- $where, mapReduce, group allows arbitrary Javascript execution.
 
 ## db.serverStatus( )
 
